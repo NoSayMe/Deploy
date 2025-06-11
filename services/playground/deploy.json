@@ -1,0 +1,8 @@
+  "name": "playground-test",
+  "image": "nginx:alpine",
+  "ports": ["8081:80"],
+  "env": {
+    "TEST_ENV": "HelloWorld"
+  }
+}
+
