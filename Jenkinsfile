@@ -5,6 +5,7 @@ pipeline {
         stage('Deploy Changed Services') {
             steps {
                 script {
+                    // Get list of changed service folders
                     def changedServices = sh(
                         script: "git diff --name-only HEAD~1 HEAD | grep '^services/' | cut -d/ -f2 | uniq",
                         returnStdout: true
@@ -24,20 +25,23 @@ pipeline {
                         }
 
                         def config = readJSON file: serviceFile
-                        def containerName = config.name
                         def image = config.image
                         def portFlags = config.ports.collect { "-p ${it}" }.join(" ")
                         def envFlags = config.env.collect { "-e ${it.key}=${it.value}" }.join(" ")
 
+                        // Use the service folder name as the Docker container name
+                        def containerName = service
+
                         echo "🚀 Deploying ${containerName} with image ${image}"
 
+                        // Check memory
                         def freeMem = sh(script: "free -m | awk '/Mem:/ { print \$7 }'", returnStdout: true).trim().toInteger()
-
                         if (freeMem < 500) {
-                            echo "⚠️ Not enough memory to deploy ${containerName}"
+                            echo "⚠️ Not enough memory to deploy ${containerName} (available: ${freeMem}MB)"
                             continue
                         }
 
+                        // Deploy container
                         try {
                             sh """
                                 docker stop ${containerName} || true
