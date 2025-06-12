@@ -1,2 +1,3 @@
 def echo_message(msg: str) -> str:
-    return f"Echo: {msg}!"
+    return "👋 Hello from Jenkins FastAPI!"
+    # return f"Echo: {msg}!"

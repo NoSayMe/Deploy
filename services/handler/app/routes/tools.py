@@ -6,5 +6,4 @@ router = APIRouter()
 
 @router.post("/echo")
 async def run_echo(req: ToolRequest):
-    return "👋 Hello from Jenkins FastAPI!"
-    # return {"result": echo_message(req.message)}
+    return {"result": echo_message(req.message)}
