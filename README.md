@@ -10,7 +10,3 @@ deploy-repo/
 ├── Jenkinsfile
 └── README.md
 
-
-
-
-ahoj :)
