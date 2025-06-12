@@ -1,5 +1,6 @@
 {
   "image": "python-test-image:latest",
+  "build": true,
   "ports": ["8082:8000"],
   "env": {
     "GLOBAL_MESSAGE": "Hello from Jenkins!"
