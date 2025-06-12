@@ -56,6 +56,7 @@ pipeline {
                             sh """
                                 docker stop ${containerName} || true
                                 docker rm ${containerName} || true
+                                echo "🛠️ Running container ${containerName} from image ${image}"
                                 docker run -d --restart unless-stopped --name ${containerName} ${portFlags} ${envFlags} ${image}
                             """
                             echo "✅ ${containerName} deployed"
