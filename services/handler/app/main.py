@@ -12,6 +12,6 @@ class Handler(BaseHTTPRequestHandler):
 if __name__ == '__main__':
     port = 8000
     server = HTTPServer(('', port), Handler)
-    print(f"Serving on port '{port}'.")
+    print(f"Serving on port '{port}'..")
     server.serve_forever()
 

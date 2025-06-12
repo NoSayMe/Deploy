@@ -42,9 +42,7 @@ pipeline {
                         try {
                             if (shouldBuild) {
                                 echo "🔧 Building image locally from ${serviceDir}"
-                                withEnv(["DOCKER_BUILDKIT=1"]) {
-                                    sh "docker build -t ${image} ${serviceDir}"
-                                }
+                                sh "docker buildx build --load -t ${image} ${serviceDir}"
                             } else {
                                 def imageExists = sh(script: "docker images -q ${image}", returnStdout: true).trim()
                                 if (!imageExists) {
