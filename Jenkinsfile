@@ -39,7 +39,13 @@ pipeline {
                         def portFlags = config.ports.collect { "-p ${it}" }.join(" ")
 
                         // ✅ Quote environment values to handle spaces or special characters
-                        def envFlags = config.env.collect { "-e \"${it.key}=${it.value}\"" }.join(" ")
+                        def envFlags = config.containsKey('env') ? config.env.collect { "-e \"${it.key}=${it.value}\"" }.join(" ") : ''
+
+                        // 💾 Mount host volumes when defined
+                        def volumeFlags = ''
+                        if (config.containsKey('volumes')) {
+                            volumeFlags = config.volumes.collect { "-v ${it.key}:${it.value}" }.join(' ')
+                        }
 
                         // 🏗️ Determine if the image needs to be built locally
                         def shouldBuild = config.containsKey("build") && config.build == true
@@ -74,7 +80,7 @@ pipeline {
                                 docker stop ${containerName} || true
                                 docker rm ${containerName} || true
                                 echo "🛠️ Running container ${containerName} from image ${image}"
-                                docker run -d --restart unless-stopped --name ${containerName} --network ci-network ${portFlags} ${envFlags} ${image}
+                                docker run -d --restart unless-stopped --name ${containerName} --network ci-network ${portFlags} ${envFlags} ${volumeFlags} ${image}
                             """
 
                             echo "✅ ${containerName} deployed"
