@@ -1,0 +1,5 @@
+{
+  "image": "mcp-test-server:latest",
+  "build": true,
+  "ports": ["8090:8000"]
+}
