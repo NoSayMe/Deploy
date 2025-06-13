@@ -24,6 +24,12 @@ pipeline {
                     changedServices += missing
                     changedServices = changedServices.unique()
 
+                    // 🛠️ If nginx changed, redeploy every service so routing updates propagate
+                    if (changedServices.contains('nginx')) {
+                        echo '🔄 nginx updated, scheduling full redeploy'
+                        changedServices = allServices
+                    }
+
                     // 🛑 If nothing needs to be deployed, exit early
                     if (changedServices.isEmpty()) {
                         echo "No service changes detected and all containers present. Skipping deployment."
