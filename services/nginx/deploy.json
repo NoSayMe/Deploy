@@ -1,8 +1,9 @@
 {
   "image": "custom-nginx:latest",
   "build": true,
-  "ports": ["8080:80"],
+  "ports": ["8081:80"],
   "volumes": {
     "/var/ci_data/nginx/logs": "/var/log/nginx"
-  }
+  },
+  "depends_on": ["handler", "mcp_server"]
 }
