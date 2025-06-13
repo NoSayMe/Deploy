@@ -2,6 +2,8 @@ import os
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import Integer, Text
+from sqlalchemy.exc import OperationalError
+import asyncio
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
@@ -19,6 +21,14 @@ class Message(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     content: Mapped[str] = mapped_column(Text)
 
-async def init_db() -> None:
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+async def init_db(retries: int = 5, delay: float = 2) -> None:
+    """Initialise database tables, retrying if the DB isn't ready yet."""
+    for attempt in range(1, retries + 1):
+        try:
+            async with engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+            break
+        except OperationalError:
+            if attempt == retries:
+                raise
+            await asyncio.sleep(delay)

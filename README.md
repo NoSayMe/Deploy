@@ -38,3 +38,10 @@ The handler container runs a FastAPI app on port `8000` (mapped to `8082` on the
 The Postgres container provides the database `handler_db` and is configured with the `POSTGRES_PASSWORD` environment variable set to `postgres`.
 
 Both containers run on the same Docker network created by Jenkins so the handler service can reach the database at the hostname `postgres`.
+
+### Database Initialisation
+
+The FastAPI application automatically creates the required tables when it
+starts. If the database is not ready yet, the startup routine retries a few
+times before giving up. Simply running the `handler` service prepares the
+database for storing messages.
