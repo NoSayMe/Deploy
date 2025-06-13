@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 import random
+import os
 
 
 def openapi_to_mcp(schema: dict) -> dict:
@@ -49,6 +50,8 @@ class VehicleRequest(BaseModel):
     model: str
 
 # Minimal OpenAPI schema describing the available tool.
+BASE_URL = os.getenv("BASE_URL", "http://localhost:8090")
+
 OPENAPI_SCHEMA = {
     "openapi": "3.0.3",
     "info": {
@@ -65,7 +68,7 @@ OPENAPI_SCHEMA = {
         "description": "Full documentation",
         "url": "http://yourdomain.com/docs",
     },
-    "servers": [{"url": "http://31.97.45.128:8090"}],
+    "servers": [{"url": BASE_URL}],
     "paths": {
         "/tools/get_vehicle_price": {
             "post": {
@@ -121,8 +124,8 @@ AI_PLUGIN_SCHEMA = {
     "description_for_human": "Get price estimate for a vehicle given brand and model",
     "description_for_model": "Use this tool to retrieve vehicle pricing by brand and model",
     "auth": {"type": "none"},
-    "api": {"type": "openapi", "url": "http://31.97.45.128:8090/openapi.json"},
-    "logo_url": "http://31.97.45.128:8090/logo.png",
+    "api": {"type": "openapi", "url": f"{BASE_URL}/openapi.json"},
+    "logo_url": f"{BASE_URL}/logo.png",
     "contact_email": "support@yourdomain.com",
     "legal_info_url": "http://yourdomain.com/legal"
 }
