@@ -7,5 +7,6 @@
   },
   "volumes": {
     "/var/ci_data/postgres/data": "/var/lib/postgresql/data"
-  }
+  },
+  "depends_on": ["nginx"]
 }
