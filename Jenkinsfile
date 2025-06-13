@@ -18,6 +18,9 @@ pipeline {
                         return
                     }
 
+                    // 📡 Ensure a dedicated network exists for inter-service communication
+                    sh 'docker network create ci-network || true'
+
                     // 🔁 Iterate over each changed service
                     for (service in changedServices) {
                         def serviceDir = "services/${service}"
@@ -71,7 +74,7 @@ pipeline {
                                 docker stop ${containerName} || true
                                 docker rm ${containerName} || true
                                 echo "🛠️ Running container ${containerName} from image ${image}"
-                                docker run -d --restart unless-stopped --name ${containerName} ${portFlags} ${envFlags} ${image}
+                                docker run -d --restart unless-stopped --name ${containerName} --network ci-network ${portFlags} ${envFlags} ${image}
                             """
 
                             echo "✅ ${containerName} deployed"

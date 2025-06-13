@@ -1,0 +1,8 @@
+{
+  "image": "postgres:15",
+  "ports": ["5432:5432"],
+  "env": {
+    "POSTGRES_PASSWORD": "postgres",
+    "POSTGRES_DB": "handler_db"
+  }
+}
