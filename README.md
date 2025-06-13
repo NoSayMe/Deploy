@@ -60,6 +60,8 @@ feature:
   vehicle brand and model.
 - `GET /tools/schema` – returns the OpenAI tool schema describing
   `get_vehicle_price`.
+- `GET /openapi.json` – returns an OpenAPI description of the
+  `get_vehicle_price` tool.
 
 These endpoints are intentionally lightweight so you can easily connect to them
 from the ChatGPT playground or your own scripts while learning how MCP works.

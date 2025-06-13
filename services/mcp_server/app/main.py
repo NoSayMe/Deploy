@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from app.tools import router as tools_router
+from app.tools import router as tools_router, OPENAPI_SCHEMA
 
-app = FastAPI(title="Dummy MCP Server")
+# Disable FastAPI's default OpenAPI endpoint so we can serve a custom schema
+# describing only the available tool.
+app = FastAPI(title="Dummy MCP Server", openapi_url=None)
 
 class EchoRequest(BaseModel):
     message: str
@@ -22,3 +24,9 @@ async def echo(req: EchoRequest) -> dict:
 
 
 app.include_router(tools_router, prefix="/tools")
+
+
+# Expose the minimal OpenAPI schema so agents can discover the tool
+@app.get("/openapi.json", include_in_schema=False)
+async def openapi() -> dict:
+    return OPENAPI_SCHEMA
