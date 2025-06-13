@@ -1,0 +1,14 @@
+# Nginx Reverse Proxy
+
+This container runs a lightweight Nginx instance that forwards requests to the other services.
+It is built as `custom-nginx:latest` and exposes port **80** (published on the host as `8081`).
+
+## Routing
+
+- Requests to `/api/` are proxied to the **handler** service.
+- Requests to `/mcp/` are proxied to the **mcp_server** service.
+- Unknown paths return a custom `404.html` page.
+
+Access and error logs are written to `/var/ci_data/nginx/logs` on the host as defined in `deploy.json`.
+The container depends on both the handler and mcp_server services so they are started before Nginx.
+
