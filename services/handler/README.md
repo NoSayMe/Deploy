@@ -15,9 +15,9 @@ This service depends on both the `nginx` and `postgres` containers, which must b
 
 ## Endpoints
 
-All routes are prefixed with `/tools`:
+- All routes are prefixed with `/tools`:
 
-- `POST /tools/echo` – returns a greeting using `GLOBAL_MESSAGE`.
+- `POST /tools/echo` – returns `GLOBAL_MESSAGE` followed by the provided message.
 - `GET /tools/echo2` – simple HTML response.
 - `POST /tools/messages` – store a message in the database and return its ID.
 - `GET /tools/messages/{id}` – retrieve a stored message by ID.
