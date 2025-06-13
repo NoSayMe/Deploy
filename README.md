@@ -1,83 +1,34 @@
-# Deploy Repository Overview
+# Deploy Infrastructure
 
-This repository contains the deployment configuration for a small FastAPI example and its supporting database. Jenkins reads the `deploy.json` files in the `services` directory to build and run each container.
+This repository contains Docker-based services and a Jenkins pipeline used to run a small example application. Each service lives under the `services/` directory and is deployed according to its `deploy.json` file. The pipeline builds or pulls images, creates containers and ensures they share a Docker network for internal communication.
 
 ```
 Deploy/
 ├── services/
-│   ├── handler/        # FastAPI service
-│   │   ├── Dockerfile
-│   │   ├── deploy.json
-│   │   └── app/
+│   ├── handler/        # FastAPI API service
 │   ├── mcp_server/     # Dummy MCP server
-│   │   ├── Dockerfile
-│   │   ├── deploy.json
-│   │   └── app/
 │   ├── nginx/          # Reverse proxy
-│   │   ├── Dockerfile
-│   │   ├── deploy.json
-│   │   └── nginx.conf
-│   └── postgres/       # Postgres database
-│       └── deploy.json
+│   └── postgres/       # PostgreSQL database
 ├── Jenkinsfile         # CI/CD pipeline
 └── README.md
 ```
 
 ## Jenkins Pipeline
 
-The pipeline defined in `Jenkinsfile` creates a shared Docker network (`ci-network`) and deploys only the services that changed in the last commit. Images can be built locally or pulled from a registry according to each `deploy.json` file.
+The `Jenkinsfile` looks for services that changed in the latest commit and deploys only those containers. If a service image is marked with `"build": true` in its `deploy.json`, Jenkins builds it from the local Dockerfile. Otherwise the image is pulled from a registry when needed. A dedicated Docker network (`ci-network`) is created so the containers can reach each other by name.
 
-## Deployed Containers
+## Services
 
-| Container | Ports | Depends On | Purpose |
-|-----------|-------|-----------|---------|
-| **handler** | `8082:8000` | `postgres` | FastAPI application exposing the API described below. |
-| **postgres** | `5432:5432` | `-` | PostgreSQL 15 database used by the handler service. |
-| **mcp_server** | `8090:8000` | `-` | Dummy MCP server for experimenting with OpenAI agents. |
-| **nginx** | `8081:80` | `handler`, `mcp_server` | Reverse proxy logging requests and forwarding `/api` to the handler and `/mcp` to the MCP server. |
+The table below lists the available services. Follow the links for detailed information about each one.
+
+| Service | Ports | Depends On | Documentation |
+|---------|-------|------------|---------------|
+| **handler** | `8082:8000` | `postgres` | [handler/README.md](services/handler/README.md) |
+| **postgres** | `5432:5432` | - | [postgres/README.md](services/postgres/README.md) |
+| **mcp_server** | `8090:8000` | - | [mcp_server/README.md](services/mcp_server/README.md) |
+| **nginx** | `8081:80` | `handler`, `mcp_server` | [nginx/README.md](services/nginx/README.md) |
 
 ### Persistent Storage
 
-All containers store data under `/var/ci_data` on the host. For example, the Postgres database is kept in `/var/ci_data/postgres/data` and Nginx writes request logs to `/var/ci_data/nginx/logs`. Mount paths are defined in each service's `deploy.json`.
+Containers store data in `/var/ci_data` on the host. For example the PostgreSQL data directory resides in `/var/ci_data/postgres/data` and Nginx logs are written to `/var/ci_data/nginx/logs`. Volume mappings can be found in each service's `deploy.json` file.
 
-### Handler API
-
-The handler container runs a FastAPI app on port `8000` (mapped to `8082` on the host). Available endpoints under the `/tools` prefix:
-
-- `POST /tools/echo` – return a friendly greeting.
-- `GET /tools/echo2` – simple HTML response.
-- `POST /tools/messages` – store a message in the Postgres database.
-- `GET /tools/messages/{id}` – retrieve a stored message by ID.
-
-The Postgres container provides the database `handler_db` and is configured with the `POSTGRES_PASSWORD` environment variable set to `postgres`.
-
-Both containers run on the same Docker network created by Jenkins so the handler service can reach the database at the hostname `postgres`.
-
-### Database Initialisation
-
-The FastAPI application automatically creates the required tables when it
-starts. If the database is not ready yet, the startup routine retries a few
-times before giving up. Simply running the `handler` service prepares the
-database for storing messages.
-
-### MCP Server API
-
-The `mcp_server` container exposes a minimal FastAPI application on port `8000`
-(mapped to `8090` on the host). It now includes a small example tool and an
-endpoint exposing its schema so you can experiment with OpenAI's tool calling
-feature:
-
-- `GET /agent/ping` – simple health check returning `{ "pong": true }`.
-- `POST /agent/echo` – returns the message sent in the request body.
-- `POST /tools/get_vehicle_price` – returns a mock price for the provided
-  vehicle brand and model.
-- `GET /tools/schema` – returns the OpenAI tool schema describing
-  `get_vehicle_price`.
-- `GET /openapi.json` – returns an OpenAPI description of the
-  `get_vehicle_price` tool. The schema now includes a `servers` block so
-  clients know where to reach the service.
-- `GET /.well-known/ai-plugin.json` – returns the plugin manifest used by
-  OpenAI tools.
-
-These endpoints are intentionally lightweight so you can easily connect to them
-from the ChatGPT playground or your own scripts while learning how MCP works.
