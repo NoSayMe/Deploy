@@ -1,21 +1,40 @@
-deploy-repo/
+# Deploy Repository Overview
+
+This repository contains the deployment configuration for a small FastAPI example and its supporting database. Jenkins reads the `deploy.json` files in the `services` directory to build and run each container.
+
+```
+Deploy/
 ├── services/
-│   ├── auth/
-│   │   └── deploy.json
-│   ├── frontend/
-│   │   └── deploy.json
-│   ├── payments/
-│   │   └── deploy.json
-│   └── ... (more services)
-├── Jenkinsfile
+│   ├── handler/        # FastAPI service
+│   │   ├── Dockerfile
+│   │   ├── deploy.json
+│   │   └── app/
+│   └── postgres/       # Postgres database
+│       └── deploy.json
+├── Jenkinsfile         # CI/CD pipeline
 └── README.md
+```
 
-## Handler service and Postgres database
+## Jenkins Pipeline
 
-The `handler` service now stores messages in a Postgres container. Two new endpoints were added:
+The pipeline defined in `Jenkinsfile` creates a shared Docker network (`ci-network`) and deploys only the services that changed in the last commit. Images can be built locally or pulled from a registry according to each `deploy.json` file.
 
-* `POST /tools/messages` – store a message.
-* `GET /tools/messages/{id}` – retrieve a stored message.
+## Deployed Containers
 
-The Postgres container is defined under `services/postgres` and both services run on the same Docker network created by the Jenkins pipeline.
+| Container | Ports | Purpose |
+|-----------|-------|---------|
+| **handler** | `8082:8000` | FastAPI application exposing the API described below. |
+| **postgres** | `5432:5432` | PostgreSQL 15 database used by the handler service. |
 
+### Handler API
+
+The handler container runs a FastAPI app on port `8000` (mapped to `8082` on the host). Available endpoints under the `/tools` prefix:
+
+- `POST /tools/echo` – return a friendly greeting.
+- `GET /tools/echo2` – simple HTML response.
+- `POST /tools/messages` – store a message in the Postgres database.
+- `GET /tools/messages/{id}` – retrieve a stored message by ID.
+
+The Postgres container provides the database `handler_db` and is configured with the `POSTGRES_PASSWORD` environment variable set to `postgres`.
+
+Both containers run on the same Docker network created by Jenkins so the handler service can reach the database at the hostname `postgres`.
