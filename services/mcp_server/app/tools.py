@@ -28,6 +28,7 @@ TOOL_SCHEMA = {
 OPENAPI_SCHEMA = {
     "openapi": "3.0.1",
     "info": {"title": "Vehicle Price API", "version": "1.0.0"},
+    "servers": [{"url": "http://31.97.45.128:8090"}],
     "paths": {
         "/tools/get_vehicle_price": {
             "post": {
@@ -67,6 +68,19 @@ OPENAPI_SCHEMA = {
             }
         }
     }
+}
+
+AI_PLUGIN_SCHEMA = {
+    "schema_version": "v1",
+    "name_for_human": "Vehicle Price Tool",
+    "name_for_model": "get_vehicle_price",
+    "description_for_human": "Get price estimate for a vehicle given brand and model",
+    "description_for_model": "Use this tool to retrieve vehicle pricing by brand and model",
+    "auth": {"type": "none"},
+    "api": {"type": "openapi", "url": "http://31.97.45.128:8090/openapi.json"},
+    "logo_url": "http://31.97.45.128:8090/logo.png",
+    "contact_email": "support@yourdomain.com",
+    "legal_info_url": "http://yourdomain.com/legal"
 }
 
 @router.post("/get_vehicle_price")
