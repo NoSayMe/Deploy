@@ -61,7 +61,10 @@ feature:
 - `GET /tools/schema` – returns the OpenAI tool schema describing
   `get_vehicle_price`.
 - `GET /openapi.json` – returns an OpenAPI description of the
-  `get_vehicle_price` tool.
+  `get_vehicle_price` tool. The schema now includes a `servers` block so
+  clients know where to reach the service.
+- `GET /.well-known/ai-plugin.json` – returns the plugin manifest used by
+  OpenAI tools.
 
 These endpoints are intentionally lightweight so you can easily connect to them
 from the ChatGPT playground or your own scripts while learning how MCP works.
