@@ -50,11 +50,16 @@ database for storing messages.
 ### MCP Server API
 
 The `mcp_server` container exposes a minimal FastAPI application on port `8000`
-(mapped to `8090` on the host). It provides a couple of dummy endpoints that can
-be used to experiment with OpenAI's MCP integration:
+(mapped to `8090` on the host). It now includes a small example tool and an
+endpoint exposing its schema so you can experiment with OpenAI's tool calling
+feature:
 
 - `GET /agent/ping` – simple health check returning `{ "pong": true }`.
 - `POST /agent/echo` – returns the message sent in the request body.
+- `POST /tools/get_vehicle_price` – returns a mock price for the provided
+  vehicle brand and model.
+- `GET /tools/schema` – returns the OpenAI tool schema describing
+  `get_vehicle_price`.
 
 These endpoints are intentionally lightweight so you can easily connect to them
 from the ChatGPT playground or your own scripts while learning how MCP works.
