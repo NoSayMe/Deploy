@@ -11,9 +11,22 @@ pipeline {
                         returnStdout: true
                     ).trim().split("\n").findAll { it }
 
-                    // 🛑 If no services changed, exit early
+                    // 🧩 Also deploy services whose containers are missing
+                    def allServices = sh(script: 'ls services', returnStdout: true).trim().split('\n').findAll { it }
+                    def missing = []
+                    for (service in allServices) {
+                        def exists = sh(script: "docker ps -a --filter 'name=${service}' -q", returnStdout: true).trim()
+                        if (!exists && !changedServices.contains(service)) {
+                            echo "📢 ${service} container missing, scheduling deployment"
+                            missing << service
+                        }
+                    }
+                    changedServices += missing
+                    changedServices = changedServices.unique()
+
+                    // 🛑 If nothing needs to be deployed, exit early
                     if (changedServices.isEmpty()) {
-                        echo "No service changes detected. Skipping deployment."
+                        echo "No service changes detected and all containers present. Skipping deployment."
                         currentBuild.result = 'SUCCESS'
                         return
                     }
