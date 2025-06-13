@@ -5,7 +5,7 @@ It is built as `custom-nginx:latest` and exposes port **80** (published on the h
 
 ## Routing
 
-- Requests to `/api/` are proxied to the **handler** service.
+ - Requests to `/api/` are proxied to the **handler** service with the `/api` prefix removed.
 - Requests to `/mcp/` are proxied to the **mcp_server** service.
 - Unknown paths return a custom `404.html` page.
 
