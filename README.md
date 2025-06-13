@@ -25,6 +25,7 @@ The pipeline defined in `Jenkinsfile` creates a shared Docker network (`ci-netwo
 |-----------|-------|---------|
 | **handler** | `8082:8000` | FastAPI application exposing the API described below. |
 | **postgres** | `5432:5432` | PostgreSQL 15 database used by the handler service. |
+| **mcp_server** | `8090:8000` | Dummy MCP server for experimenting with OpenAI agents. |
 
 ### Handler API
 
@@ -45,3 +46,15 @@ The FastAPI application automatically creates the required tables when it
 starts. If the database is not ready yet, the startup routine retries a few
 times before giving up. Simply running the `handler` service prepares the
 database for storing messages.
+
+### MCP Server API
+
+The `mcp_server` container exposes a minimal FastAPI application on port `8000`
+(mapped to `8090` on the host). It provides a couple of dummy endpoints that can
+be used to experiment with OpenAI's MCP integration:
+
+- `GET /agent/ping` – simple health check returning `{ "pong": true }`.
+- `POST /agent/echo` – returns the message sent in the request body.
+
+These endpoints are intentionally lightweight so you can easily connect to them
+from the ChatGPT playground or your own scripts while learning how MCP works.
