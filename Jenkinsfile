@@ -47,6 +47,17 @@ pipeline {
                             volumeFlags = config.volumes.collect { "-v ${it.key}:${it.value}" }.join(' ')
                         }
 
+                        // 📦 Start any container dependencies if defined
+                        if (config.containsKey('depends_on')) {
+                            for (dep in config.depends_on) {
+                                def running = sh(script: "docker ps --filter 'name=${dep}' -q", returnStdout: true).trim()
+                                if (!running) {
+                                    echo "🔗 Starting dependency ${dep}"
+                                    sh "docker start ${dep} || true"
+                                }
+                            }
+                        }
+
                         // 🏗️ Determine if the image needs to be built locally
                         def shouldBuild = config.containsKey("build") && config.build == true
 

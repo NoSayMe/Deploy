@@ -7,5 +7,6 @@
   "env": {
     "GLOBAL_MESSAGE": "Hello from Jenkins!!",
     "DATABASE_URL": "postgresql+asyncpg://postgres:postgres@postgres:5432/handler_db"
-  }
+  },
+  "depends_on": ["postgres"]
 }

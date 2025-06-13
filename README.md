@@ -29,12 +29,12 @@ The pipeline defined in `Jenkinsfile` creates a shared Docker network (`ci-netwo
 
 ## Deployed Containers
 
-| Container | Ports | Purpose |
-|-----------|-------|---------|
-| **handler** | `8082:8000` | FastAPI application exposing the API described below. |
-| **postgres** | `5432:5432` | PostgreSQL 15 database used by the handler service. |
-| **mcp_server** | `8090:8000` | Dummy MCP server for experimenting with OpenAI agents. |
-| **nginx** | `8080:80` | Reverse proxy logging requests and forwarding `/api` to the handler and `/mcp` to the MCP server. |
+| Container | Ports | Depends On | Purpose |
+|-----------|-------|-----------|---------|
+| **handler** | `8082:8000` | `postgres` | FastAPI application exposing the API described below. |
+| **postgres** | `5432:5432` | `-` | PostgreSQL 15 database used by the handler service. |
+| **mcp_server** | `8090:8000` | `-` | Dummy MCP server for experimenting with OpenAI agents. |
+| **nginx** | `8081:80` | `handler`, `mcp_server` | Reverse proxy logging requests and forwarding `/api` to the handler and `/mcp` to the MCP server. |
 
 ### Persistent Storage
 
