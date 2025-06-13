@@ -11,7 +11,7 @@ Environment variables from `deploy.json`:
 - `GLOBAL_MESSAGE` – example message returned by the `/tools/echo` endpoint.
 - `DATABASE_URL` – SQLAlchemy URL used to connect to PostgreSQL. By default `postgresql+asyncpg://postgres:postgres@postgres:5432/handler_db`.
 
-This service depends on the `postgres` container which must be reachable at the hostname `postgres` on the Docker network.
+This service depends on both the `nginx` and `postgres` containers, which must be reachable at the hostnames `nginx` and `postgres` on the Docker network.
 
 ## Endpoints
 

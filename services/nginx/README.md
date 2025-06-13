@@ -10,5 +10,5 @@ It is built as `custom-nginx:latest` and exposes port **80** (published on the h
 - Unknown paths return a custom `404.html` page.
 
 Access and error logs are written to `/var/ci_data/nginx/logs` on the host as defined in `deploy.json`.
-The container depends on both the handler and mcp_server services so they are started before Nginx.
+This container has no dependencies, but other services rely on it for routing.
 

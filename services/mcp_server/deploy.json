@@ -1,5 +1,6 @@
 {
   "image": "mcp-test-server:latest",
   "build": true,
-  "ports": ["8090:8000"]
+  "ports": ["8090:8000"],
+  "depends_on": ["nginx"]
 }

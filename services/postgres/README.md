@@ -7,5 +7,7 @@ Environment variables defined in `deploy.json`:
 - `POSTGRES_PASSWORD` – password for the default `postgres` user (set to `postgres`).
 - `POSTGRES_DB` – database created on startup (set to `handler_db`).
 
+This service depends on the `nginx` container so that other applications can reach the database through the shared network.
+
 No additional configuration is required. The handler service automatically creates the required tables when it starts.
 

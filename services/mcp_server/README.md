@@ -2,7 +2,7 @@
 
 `mcp_server` provides a minimal FastAPI application used for experimenting with OpenAI agent tools. It is built locally as `mcp-test-server:latest` and runs on port **8000** (exposed on the host as `8090`).
 
-The container does not require any environment variables or persistent volumes.
+The container does not require any environment variables or persistent volumes, but it depends on the `nginx` container for routing.
 
 ## Endpoints
 
