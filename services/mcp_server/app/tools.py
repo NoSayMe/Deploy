@@ -1,9 +1,12 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from pathlib import Path
 import json
 import random
 import os
+import httpx
+import ast
+import operator as op
 
 
 router = APIRouter()
@@ -55,6 +58,25 @@ class VehicleResponse(BaseModel):
     price_eur: int
 
 
+class WeatherRequest(BaseModel):
+    location: str
+    units: str = "metric"
+
+
+class WeatherResponse(BaseModel):
+    location: str
+    temperature: float
+    units: str
+
+
+class CalcRequest(BaseModel):
+    expression: str
+
+
+class CalcResponse(BaseModel):
+    result: float
+
+
 def get_price(brand: str, model: str) -> int | None:
     return VEHICLE_PRICES.get(brand.lower(), {}).get(model.lower())
 
@@ -65,6 +87,62 @@ async def get_vehicle_price(data: VehicleRequest) -> dict:
     if price is None:
         price = random.randint(15000, 45000)
     return {"brand": data.brand, "model": data.model, "price_eur": price}
+
+
+@router.post("/get_weather", response_model=WeatherResponse)
+async def get_weather(data: WeatherRequest) -> dict:
+    """Return fake weather info. In real deployments this would query an API."""
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(
+                "https://api.open-meteo.com/v1/forecast",
+                params={"latitude": 0, "longitude": 0, "current_weather": True},
+                timeout=5,
+            )
+            temp = resp.json().get("current_weather", {}).get("temperature", 20)
+    except Exception:
+        temp = random.uniform(-10, 30)
+    return {"location": data.location, "temperature": temp, "units": data.units}
+
+
+ALLOWED_OPS = {
+    ast.Add: op.add,
+    ast.Sub: op.sub,
+    ast.Mult: op.mul,
+    ast.Div: op.truediv,
+    ast.Pow: op.pow,
+    ast.USub: op.neg,
+}
+
+
+def _eval(node):
+    if isinstance(node, ast.Num):
+        return node.n
+    if isinstance(node, ast.BinOp):
+        return ALLOWED_OPS[type(node.op)](_eval(node.left), _eval(node.right))
+    if isinstance(node, ast.UnaryOp):
+        return ALLOWED_OPS[type(node.op)](_eval(node.operand))
+    raise ValueError("unsupported expression")
+
+
+@router.post("/calculate", response_model=CalcResponse)
+async def calculate(data: CalcRequest) -> dict:
+    try:
+        expr = ast.parse(data.expression, mode="eval").body
+        result = _eval(expr)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid expression")
+    return {"result": result}
+
+
+async def execute_tool(name: str, arguments: dict) -> dict:
+    if name == "get_vehicle_price":
+        return await get_vehicle_price(VehicleRequest(**arguments))
+    if name == "get_weather":
+        return await get_weather(WeatherRequest(**arguments))
+    if name == "calculate":
+        return await calculate(CalcRequest(**arguments))
+    raise ValueError(f"Unknown tool {name}")
 
 
 def openapi_to_mcp(schema: dict) -> dict:
