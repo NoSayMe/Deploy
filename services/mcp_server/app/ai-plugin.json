@@ -1,0 +1,12 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Vehicle Price Tool",
+  "name_for_model": "vehicle_price_api",
+  "description_for_human": "Lookup the price of a vehicle by brand and model",
+  "description_for_model": "Retrieve vehicle pricing information",
+  "auth": {"type": "none"},
+  "api": {"type": "openapi", "url": "http://localhost:8090/openapi.json"},
+  "logo_url": "http://localhost:8090/logo.png",
+  "contact_email": "support@example.com",
+  "legal_info_url": "http://example.com/legal"
+}
