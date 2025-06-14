@@ -26,7 +26,9 @@ The table below lists the available services. Follow the links for detailed info
 | **handler** | `8082:8000` | `nginx`, `postgres` | [handler/README.md](services/handler/README.md) |
 | **postgres** | `5432:5432` | `nginx` | [postgres/README.md](services/postgres/README.md) |
 | **mcp_server** | `8090:8000` | `nginx` | [mcp_server/README.md](services/mcp_server/README.md) |
-| **nginx** | `8081:80` | - | [nginx/README.md](services/nginx/README.md) |
+| **nginx** | `80:80` | - | [nginx/README.md](services/nginx/README.md) |
+
+The Jenkins UI running on the host at port `8080` can be reached via `http://localhost/jenkins/` through the Nginx proxy.
 
 ### Persistent Storage
 
