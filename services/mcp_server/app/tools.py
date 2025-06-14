@@ -1,11 +1,73 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
+from pathlib import Path
+import json
 import random
 import os
 
 
+router = APIRouter()
+BASE_URL = os.getenv("BASE_URL", "http://localhost:8090")
+
+OPENAPI_PATH = Path(__file__).with_name("openapi.json")
+PLUGIN_PATH = Path(__file__).with_name("ai-plugin.json")
+
+
+def load_json(path: Path) -> dict:
+    with path.open() as f:
+        return json.load(f)
+
+
+def load_openapi() -> dict:
+    schema = load_json(OPENAPI_PATH)
+    for srv in schema.get("servers", []):
+        srv["url"] = BASE_URL
+    return schema
+
+
+OPENAPI_SCHEMA = load_openapi()
+
+
+def load_plugin() -> dict:
+    plugin = load_json(PLUGIN_PATH)
+    plugin["api"]["url"] = f"{BASE_URL}/openapi.json"
+    plugin["logo_url"] = f"{BASE_URL}/logo.png"
+    return plugin
+
+
+AI_PLUGIN_SCHEMA = load_plugin()
+
+
+VEHICLE_PRICES = {
+    "skoda": {"octavia": 23000, "fabia": 18000},
+    "toyota": {"corolla": 25000, "camry": 27000},
+}
+
+
+class VehicleRequest(BaseModel):
+    brand: str
+    model: str
+
+
+class VehicleResponse(BaseModel):
+    brand: str
+    model: str
+    price_eur: int
+
+
+def get_price(brand: str, model: str) -> int | None:
+    return VEHICLE_PRICES.get(brand.lower(), {}).get(model.lower())
+
+
+@router.post("/get_vehicle_price", response_model=VehicleResponse)
+async def get_vehicle_price(data: VehicleRequest) -> dict:
+    price = get_price(data.brand, data.model)
+    if price is None:
+        price = random.randint(15000, 45000)
+    return {"brand": data.brand, "model": data.model, "price_eur": price}
+
+
 def openapi_to_mcp(schema: dict) -> dict:
-    """Convert an OpenAPI schema to a minimal MCP tool definition."""
     tools = []
     title = schema.get("info", {}).get("title", "")
     for path, methods in schema.get("paths", {}).items():
@@ -17,132 +79,17 @@ def openapi_to_mcp(schema: dict) -> dict:
             if "requestBody" in op:
                 content = op["requestBody"].get("content", {})
                 input_schema = content.get("application/json", {}).get("schema", {})
-            elif "parameters" in op:
-                props = {}
-                required = []
-                for p in op["parameters"]:
-                    schema_ = p.get("schema", {}).copy()
-                    if p.get("description"):
-                        schema_["description"] = p["description"]
-                    props[p["name"]] = schema_
-                    if p.get("required"):
-                        required.append(p["name"])
-                if props:
-                    input_schema = {"type": "object", "properties": props}
-                    if required:
-                        input_schema["required"] = required
 
-            tools.append(
-                {
-                    "name": name,
-                    "description": description,
-                    "inputSchema": input_schema,
-                    "annotations": {"title": title},
-                }
-            )
+            tools.append({
+                "name": name,
+                "description": description,
+                "inputSchema": input_schema,
+                "annotations": {"title": title},
+            })
 
     return {"tools": tools}
 
-router = APIRouter()
-
-class VehicleRequest(BaseModel):
-    brand: str
-    model: str
-
-# Minimal OpenAPI schema describing the available tool.
-BASE_URL = os.getenv("BASE_URL", "http://localhost:8090")
-
-OPENAPI_SCHEMA = {
-    "openapi": "3.0.3",
-    "info": {
-        "title": "Vehicle Price API",
-        "description": "API to estimate vehicle prices by brand and model.",
-        "version": "1.0.0",
-        "contact": {
-            "name": "API Support",
-            "email": "support@yourdomain.com",
-            "url": "http://yourdomain.com/support",
-        },
-    },
-    "externalDocs": {
-        "description": "Full documentation",
-        "url": "http://yourdomain.com/docs",
-    },
-    "servers": [{"url": BASE_URL}],
-    "paths": {
-        "/tools/get_vehicle_price": {
-            "post": {
-                "operationId": "get_vehicle_price",
-                "summary": "Get vehicle price estimate",
-                "description": "Returns vehicle price for the provided brand and model",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "brand": {
-                                        "type": "string",
-                                        "description": "Vehicle brand (e.g. Skoda)",
-                                    },
-                                    "model": {
-                                        "type": "string",
-                                        "description": "Vehicle model (e.g. Octavia)",
-                                    },
-                                },
-                                "required": ["brand", "model"],
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "brand": {"type": "string"},
-                                        "model": {"type": "string"},
-                                        "price_eur": {"type": "integer"}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-AI_PLUGIN_SCHEMA = {
-    "schema_version": "v1",
-    "name_for_human": "Vehicle Price Tool",
-    "name_for_model": "get_vehicle_price",
-    "description_for_human": "Get price estimate for a vehicle given brand and model",
-    "description_for_model": "Use this tool to retrieve vehicle pricing by brand and model",
-    "auth": {"type": "none"},
-    "api": {"type": "openapi", "url": f"{BASE_URL}/openapi.json"},
-    "logo_url": f"{BASE_URL}/logo.png",
-    "contact_email": "support@yourdomain.com",
-    "legal_info_url": "http://yourdomain.com/legal"
-}
-
-TOOLS = openapi_to_mcp(OPENAPI_SCHEMA)["tools"]
-
-@router.post("/get_vehicle_price")
-async def get_vehicle_price(data: VehicleRequest) -> dict:
-    price = random.randint(15000, 45000)
-    return {
-        "brand": data.brand,
-        "model": data.model,
-        "price_eur": price,
-    }
 
 @router.get("/schema")
 async def get_schema() -> dict:
-    """Return the MCP tool definition generated from the OpenAPI schema."""
-    return {"tools": TOOLS}
-
+    return openapi_to_mcp(OPENAPI_SCHEMA)

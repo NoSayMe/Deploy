@@ -6,7 +6,7 @@ from app.tools import router as tools_router, OPENAPI_SCHEMA, AI_PLUGIN_SCHEMA
 
 # Disable FastAPI's default OpenAPI endpoint so we can serve a custom schema
 # describing only the available tool.
-app = FastAPI(title="Dummy MCP Server", openapi_url=None)
+app = FastAPI(title="Vehicle Price MCP Server", openapi_url=None)
 
 class EchoRequest(BaseModel):
     message: str

@@ -1,0 +1,49 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Vehicle Price API",
+    "description": "API to retrieve prices for vehicles by brand and model.",
+    "version": "1.0.0"
+  },
+  "servers": [{"url": "http://localhost:8090"}],
+  "paths": {
+    "/tools/get_vehicle_price": {
+      "post": {
+        "operationId": "get_vehicle_price",
+        "summary": "Get vehicle price",
+        "description": "Returns a price for the given brand and model.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "brand": {"type": "string", "description": "Vehicle brand"},
+                  "model": {"type": "string", "description": "Vehicle model"}
+                },
+                "required": ["brand", "model"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "brand": {"type": "string"},
+                    "model": {"type": "string"},
+                    "price_eur": {"type": "integer"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
