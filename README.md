@@ -6,7 +6,7 @@ This repository contains Docker-based services and a Jenkins pipeline used to ru
 Deploy/
 ├── services/
 │   ├── handler/        # FastAPI API service
-│   ├── mcp_server/     # Dummy MCP server
+│   ├── mcp_server/     # Enhanced MCP server
 │   ├── nginx/          # Reverse proxy
 │   └── postgres/       # PostgreSQL database
 ├── Jenkinsfile         # CI/CD pipeline

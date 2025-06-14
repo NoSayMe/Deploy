@@ -1,9 +1,9 @@
 {
   "schema_version": "v1",
-  "name_for_human": "Vehicle Price Tool",
-  "name_for_model": "vehicle_price_api",
-  "description_for_human": "Lookup the price of a vehicle by brand and model",
-  "description_for_model": "Retrieve vehicle pricing information",
+  "name_for_human": "Enhanced MCP Tools",
+  "name_for_model": "enhanced_mcp",
+  "description_for_human": "Sample tools for price lookup, weather, and calculations",
+  "description_for_model": "Provides vehicle price, weather information and calculator tools",
   "auth": {"type": "none"},
   "api": {"type": "openapi", "url": "http://localhost:8090/openapi.json"},
   "logo_url": "http://localhost:8090/logo.png",
