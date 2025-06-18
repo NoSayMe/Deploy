@@ -4,7 +4,7 @@ pipeline {
     environment {
         // 🔐 All sensitive data stored securely in Jenkins
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
-        REMOTE_HOST = credentials('remote-host')
+        REMOTE_HOST = credentials('remote-host-azure-1')
         REMOTE_USER = credentials('remote-user')
         DOCKER_REGISTRY = credentials('docker-registry')
     }
