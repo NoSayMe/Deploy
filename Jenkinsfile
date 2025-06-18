@@ -74,15 +74,15 @@ pipeline {
                         string(credentialsId: 'remote-user', variable: 'REMOTE_USER'),
                         string(credentialsId: 'remote-host-azure-1', variable: 'REMOTE_HOST')
                     ]) {
+                        // Copy files to remote server
                         sh """
-                            scp -i $SSH_KEY -o StrictHostKeyChecking=no docker-compose.yml deploy-script.sh ${REMOTE_USER}@${REMOTE_HOST}:/opt/app/
-                            ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} 'cd /opt/app && chmod +x deploy-script.sh && ./deploy-script.sh'
+                            scp -i $SSH_KEY -o StrictHostKeyChecking=no docker-compose.yml ${REMOTE_USER}@${REMOTE_HOST}:/opt/app/
+                            scp -i $SSH_KEY -o StrictHostKeyChecking=no deploy-script.sh ${REMOTE_USER}@${REMOTE_HOST}:/opt/app/
                         """
-                    }
                         
                         // Run deployment script on remote server
                         sh """
-                            ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} '
+                            ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} '
                                 cd /opt/app
                                 chmod +x deploy-script.sh
                                 ./deploy-script.sh ${DOCKER_REGISTRY} ${REMOTE_HOST}
