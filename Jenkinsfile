@@ -69,7 +69,7 @@ pipeline {
                     echo '🚀 Deploying to remote server...'
                     
                     // 🔐 Use SSH credentials securely
-                    sshagent(['ssh-remote-server']) {
+                    sshagent(['ssh-remote-server-1-Azure']) {
                         // Copy files to remote server
                         sh """
                             scp -o StrictHostKeyChecking=no docker-compose.yml ${REMOTE_USER}@${REMOTE_HOST}:/opt/app/

@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: DOCKER_REGISTRY/nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - /var/ci_data/nginx/logs:/var/log/nginx
+    networks:
+      - ci-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: handler_db
+    volumes:
+      - /var/ci_data/postgres/data:/var/lib/postgresql/data
+    networks:
+      - ci-network
+    restart: unless-stopped
+    depends_on:
+      - nginx
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  handler:
+    image: DOCKER_REGISTRY/handler:latest
+    container_name: handler
+    ports:
+      - "8082:8000"
+    environment:
+      GLOBAL_MESSAGE: "Hello from Jenkins!!"
+      DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres:5432/handler_db"
+    networks:
+      - ci-network
+    restart: unless-stopped
+    depends_on:
+      - nginx
+      - postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/tools/echo2"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mcp_server:
+    image: DOCKER_REGISTRY/mcp_server:latest
+    container_name: mcp_server
+    ports:
+      - "8090:8000"
+    environment:
+      BASE_URL: "http://REMOTE_HOST:8090"
+      SERVER_NAME: "Enhanced MCP Server"
+      VERSION: "1.0.0"
+    volumes:
+      - /var/ci_data/mcp_server/logs:/app/logs
+    networks:
+      - ci-network
+    restart: unless-stopped
+    depends_on:
+      - nginx
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  ci-network:
+    driver: bridge
