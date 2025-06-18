@@ -74,20 +74,24 @@ pipeline {
                         string(credentialsId: 'remote-user', variable: 'REMOTE_USER'),
                         string(credentialsId: 'remote-host-azure-1', variable: 'REMOTE_HOST')
                     ]) {
-                        // Copy files to remote server
-                        sh """
-                            scp -i $SSH_KEY -o StrictHostKeyChecking=no docker-compose.yml ${REMOTE_USER}@${REMOTE_HOST}:/opt/app/
-                            scp -i $SSH_KEY -o StrictHostKeyChecking=no deploy-script.sh ${REMOTE_USER}@${REMOTE_HOST}:/opt/app/
-                        """
+                        // Create directory and copy files to remote server
+                        sh '''
+                            # Create directory first
+                            ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$REMOTE_USER@$REMOTE_HOST" "sudo mkdir -p /opt/app && sudo chown $USER:$USER /opt/app"
+                            
+                            # Copy files
+                            scp -i "$SSH_KEY" -o StrictHostKeyChecking=no docker-compose.yml "$REMOTE_USER@$REMOTE_HOST:/opt/app/"
+                            scp -i "$SSH_KEY" -o StrictHostKeyChecking=no deploy-script.sh "$REMOTE_USER@$REMOTE_HOST:/opt/app/"
+                        '''
                         
                         // Run deployment script on remote server
-                        sh """
-                            ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} '
+                        sh '''
+                            ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$REMOTE_USER@$REMOTE_HOST" "
                                 cd /opt/app
                                 chmod +x deploy-script.sh
-                                ./deploy-script.sh ${DOCKER_REGISTRY} ${REMOTE_HOST}
-                            '
-                        """
+                                ./deploy-script.sh '$DOCKER_REGISTRY' '$REMOTE_HOST'
+                            "
+                        '''
                     }
                 }
             }
