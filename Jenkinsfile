@@ -69,12 +69,16 @@ pipeline {
                     echo '🚀 Deploying to remote server...'
                     
                     // 🔐 Use SSH credentials securely
-                    sshagent(['ssh-remote-server-1-Azure']) {
-                        // Copy files to remote server
+                    withCredentials([
+                        sshUserPrivateKey(credentialsId: 'ssh-remote-server-1-Azure', keyFileVariable: 'SSH_KEY'),
+                        string(credentialsId: 'remote-user', variable: 'REMOTE_USER'),
+                        string(credentialsId: 'remote-host-azure-1', variable: 'REMOTE_HOST')
+                    ]) {
                         sh """
-                            scp -o StrictHostKeyChecking=no docker-compose.yml ${REMOTE_USER}@${REMOTE_HOST}:/opt/app/
-                            scp -o StrictHostKeyChecking=no deploy-script.sh ${REMOTE_USER}@${REMOTE_HOST}:/opt/app/
+                            scp -i $SSH_KEY -o StrictHostKeyChecking=no docker-compose.yml deploy-script.sh ${REMOTE_USER}@${REMOTE_HOST}:/opt/app/
+                            ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} 'cd /opt/app && chmod +x deploy-script.sh && ./deploy-script.sh'
                         """
+                    }
                         
                         // Run deployment script on remote server
                         sh """
