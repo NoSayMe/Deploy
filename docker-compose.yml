@@ -11,11 +11,6 @@ services:
     networks:
       - ci-network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   postgres:
     image: postgres:15
@@ -32,11 +27,6 @@ services:
     restart: unless-stopped
     depends_on:
       - nginx
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
   handler:
     image: ${DOCKER_REGISTRY}/handler:latest
@@ -52,11 +42,6 @@ services:
     depends_on:
       - nginx
       - postgres
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/tools/echo2"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   mcp_server:
     image: ${DOCKER_REGISTRY}/mcp_server:latest
@@ -74,11 +59,6 @@ services:
     restart: unless-stopped
     depends_on:
       - nginx
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
 networks:
   ci-network:
