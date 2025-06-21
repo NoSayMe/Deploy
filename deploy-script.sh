@@ -31,8 +31,8 @@ sudo mkdir -p /var/ci_data/{postgres/data,nginx/logs,mcp_server/logs}
 sudo chown -R $USER:$USER /var/ci_data
 
 # Update docker-compose.yml with correct registry/Remote_host
-sed -i "s/DOCKER_REGISTRY/$DOCKER_REGISTRY/g" docker-compose.yml
-sed -i "s/REMOTE_HOST/$REMOTE_HOST/g" docker-compose.yml
+sed -i "s/\${DOCKER_REGISTRY}/$DOCKER_REGISTRY/g" docker-compose.yml
+sed -i "s/\${REMOTE_HOST}/$REMOTE_HOST/g" docker-compose.yml
 
 # Pull latest images
 echo "📥 Pulling latest images..."
