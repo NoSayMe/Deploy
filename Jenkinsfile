@@ -97,7 +97,7 @@ pipeline {
             }
         }
     }
-    
+  /*  
     post {
         always {
             echo '🧹 Cleaning up local images...'
@@ -113,5 +113,5 @@ pipeline {
         failure {
             echo '❌ Pipeline failed!'
         }
-    }
+    } */
 }
