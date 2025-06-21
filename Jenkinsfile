@@ -77,7 +77,7 @@ pipeline {
                         // Create directory and copy files to remote server
                         sh '''
                             # Create directory first
-                            ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$REMOTE_USER@$REMOTE_HOST" "sudo mkdir -p /opt/app && sudo chown $USER:$USER /opt/app"
+                            ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$REMOTE_USER@$REMOTE_HOST" "sudo mkdir -p /opt/app && sudo chown ${REMOTE_USER}:${REMOTE_USER} /opt/app"
                             
                             # Copy files
                             scp -i "$SSH_KEY" -o StrictHostKeyChecking=no docker-compose.yml "$REMOTE_USER@$REMOTE_HOST:/opt/app/"
