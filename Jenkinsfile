@@ -6,7 +6,6 @@ pipeline {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
         REMOTE_HOST = credentials('remote-host-azure-1')
         REMOTE_USER = credentials('remote-user')
-        DOCKER_REGISTRY = credentials('docker-registry')
     }
     
     stages {
@@ -22,17 +21,19 @@ pipeline {
                 script {
                     echo '🏗️ Building Docker images...'
                     
-                    // Build each service that has build: true
-                    def services = ['handler', 'mcp_server', 'nginx']
-                    
-                    for (service in services) {
-                        if (fileExists("services/${service}/Dockerfile")) {
-                            echo "Building ${service}..."
-                            sh """
-                                cd services/${service}
-                                docker build -t ${DOCKER_REGISTRY}/${service}:latest .
-                                docker build -t ${DOCKER_REGISTRY}/${service}:${BUILD_NUMBER} .
-                            """
+                    // Use credentials binding to securely access DOCKER_REGISTRY
+                    withCredentials([string(credentialsId: 'docker-registry', variable: 'DOCKER_REGISTRY')]) {
+                        def services = ['handler', 'mcp_server', 'nginx']
+                        
+                        for (service in services) {
+                            if (fileExists("services/${service}/Dockerfile")) {
+                                echo "Building ${service}..."
+                                sh """
+                                    cd services/${service}
+                                    docker build -t \${DOCKER_REGISTRY}/${service}:latest .
+                                    docker build -t \${DOCKER_REGISTRY}/${service}:${BUILD_NUMBER} .
+                                """
+                            }
                         }
                     }
                 }
@@ -47,16 +48,18 @@ pipeline {
                     // Login to DockerHub using secure credentials
                     sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
                     
-                    // Push images
-                    def services = ['handler', 'mcp_server', 'nginx']
-                    
-                    for (service in services) {
-                        if (fileExists("services/${service}/Dockerfile")) {
-                            echo "Pushing ${service}..."
-                            sh """
-                                docker push ${DOCKER_REGISTRY}/${service}:latest
-                                docker push ${DOCKER_REGISTRY}/${service}:${BUILD_NUMBER}
-                            """
+                    // Use credentials binding for pushing
+                    withCredentials([string(credentialsId: 'docker-registry', variable: 'DOCKER_REGISTRY')]) {
+                        def services = ['handler', 'mcp_server', 'nginx']
+                        
+                        for (service in services) {
+                            if (fileExists("services/${service}/Dockerfile")) {
+                                echo "Pushing ${service}..."
+                                sh """
+                                    docker push \${DOCKER_REGISTRY}/${service}:latest
+                                    docker push \${DOCKER_REGISTRY}/${service}:${BUILD_NUMBER}
+                                """
+                            }
                         }
                     }
                 }
@@ -72,7 +75,8 @@ pipeline {
                     withCredentials([
                         sshUserPrivateKey(credentialsId: 'ssh-remote-server-1-Azure', keyFileVariable: 'SSH_KEY'),
                         string(credentialsId: 'remote-user', variable: 'REMOTE_USER'),
-                        string(credentialsId: 'remote-host-azure-1', variable: 'REMOTE_HOST')
+                        string(credentialsId: 'remote-host-azure-1', variable: 'REMOTE_HOST'),
+                        string(credentialsId: 'docker-registry', variable: 'DOCKER_REGISTRY')
                     ]) {
                         // Create directory and copy files to remote server
                         sh '''
