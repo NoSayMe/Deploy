@@ -16,6 +16,7 @@ if ! command -v docker &> /dev/null; then
     sudo systemctl enable docker
     # Add current user to docker group to avoid needing sudo for docker commands
     sudo usermod -aG docker $USER
+    newgrp docker
 fi
 
 # Check if Docker Compose is installed
