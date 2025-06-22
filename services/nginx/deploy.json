@@ -1,8 +1,0 @@
-{
-  "image": "custom-nginx:latest",
-  "build": true,
-  "ports": ["80:80"],
-  "volumes": {
-    "/var/ci_data/nginx/logs": "/var/log/nginx"
-  }
-}
