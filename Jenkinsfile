@@ -4,8 +4,8 @@ pipeline {
     environment {
         // 🔐 All sensitive data stored securely in Jenkins
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
-        REMOTE_HOST = credentials('remote-host-azure-1')
-        REMOTE_USER = credentials('remote-user')
+        //REMOTE_HOST = credentials('remote-host-azure-1')
+        //REMOTE_USER = credentials('remote-user')
     }
     
     stages {
@@ -101,14 +101,13 @@ pipeline {
             }
         }
     }
-  /*  
+    
     post {
         always {
             echo '🧹 Cleaning up local images...'
             sh '''
                 # Remove local images to save space
-                docker image prune -f
-                docker logout
+                docker system prune -f
             '''
         }
         success {
@@ -117,5 +116,5 @@ pipeline {
         failure {
             echo '❌ Pipeline failed!'
         }
-    } */
+    } 
 }
