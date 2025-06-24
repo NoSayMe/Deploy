@@ -28,8 +28,15 @@ fi
 
 # Create data directories
 echo "📁 Creating data directories..."
-sudo mkdir -p /var/ci_data/{postgres/data,nginx/logs,mcp_server/logs}
-sudo chown -R $USER:$USER /var/ci_data
+sudo mkdir -p /var/ci_data/postgres/data
+sudo mkdir -p /var/ci_data/nginx/logs
+sudo mkdir -p /var/ci_data/mcp_server/logs
+
+# Ensure PostgreSQL can access its data directory (UID 999 inside the container)
+sudo chown -R 999:999 /var/ci_data/postgres
+
+# The other directories can be owned by the deploying user
+sudo chown -R $USER:$USER /var/ci_data/nginx/logs /var/ci_data/mcp_server/logs
 
 # Update docker-compose.yml with correct registry/Remote_host
 sed -i "s/\${DOCKER_REGISTRY}/$DOCKER_REGISTRY/g" docker-compose.yml

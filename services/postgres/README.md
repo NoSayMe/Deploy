@@ -11,3 +11,15 @@ This service depends on the `nginx` container so that other applications can rea
 
 No additional configuration is required. The handler service automatically creates the required tables when it starts.
 
+### Permissions
+
+The data directory mounted at `/var/ci_data/postgres/data` must be writable by
+the `postgres` user inside the container (UID `999`). If the database fails to
+start with a permission error, adjust the ownership on the host:
+
+```bash
+sudo chown -R 999:999 /var/ci_data/postgres
+```
+
+This allows PostgreSQL to access `pg_filenode.map` and other internal files.
+
