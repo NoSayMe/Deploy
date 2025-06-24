@@ -77,6 +77,10 @@ pipeline {
                     ]) {
                         // Create directory and copy files to remote server
                         sh '''
+                            # Start ssh-agent and add key (handles passphrase automatically)
+                            eval $(ssh-agent -s)
+                            ssh-add "$SSH_KEY" < /dev/null
+                            
                             # Create directory first
                             ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$REMOTE_USER@$REMOTE_HOST" "sudo mkdir -p /opt/app && sudo chown ${REMOTE_USER}:${REMOTE_USER} /opt/app"
                             
