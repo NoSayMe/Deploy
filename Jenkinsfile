@@ -73,12 +73,10 @@ pipeline {
                         sshUserPrivateKey(credentialsId: 'ssh-remote-server-hostinger-deploy', keyFileVariable: 'SSH_KEY'),
                         string(credentialsId: 'remote-user', variable: 'REMOTE_USER'),
                         string(credentialsId: 'remote-hostinger-deploy-ip', variable: 'REMOTE_HOST'),
-                        string(credentialsId: 'docker-registry', variable: 'DOCKER_REGISTRY')
+                        string(credentialsId: 'docker-registry', variable: 'DOCKER_REGISTRY'),
                     ]) {
                         // Create directory and copy files to remote server
                         sh '''
-                            eval $(ssh-agent -s)
-                            echo "$SSH_PASSPHRASE" | ssh-add "$SSH_KEY"  
                             # Create directory first
                             ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$REMOTE_USER@$REMOTE_HOST" "sudo mkdir -p /opt/app && sudo chown ${REMOTE_USER}:${REMOTE_USER} /opt/app"
                             
