@@ -1,6 +1,6 @@
 # Deploy Infrastructure
 
-This repository contains Docker-based services and a Jenkins pipeline used to run a small example application. Each service lives under the `services/` directory and is deployed according to its `deploy.json` file. The pipeline builds or pulls images, creates containers and ensures they share a Docker network for internal communication.
+This repository contains Docker-based services and a Jenkins pipeline used to run a small example application. Each service lives under the `services/` directory and is configured through the shared `docker-compose.yml`. The pipeline builds container images, pushes them to a registry and deploys the stack on a remote host.
 
 ```
 Deploy/
@@ -10,12 +10,21 @@ Deploy/
 │   ├── nginx/          # Reverse proxy
 │   └── postgres/       # PostgreSQL database
 ├── Jenkinsfile         # CI/CD pipeline
+├── docker-compose.yml  # Service definitions
+├── deploy-script.sh    # Remote setup script
 └── README.md
 ```
 
 ## Jenkins Pipeline
 
-The `Jenkinsfile` looks for services that changed in the latest commit and deploys only those containers. If a service image is marked with `"build": true` in its `deploy.json`, Jenkins builds it from the local Dockerfile. Otherwise the image is pulled from a registry when needed. A dedicated Docker network (`ci-network`) is created so the containers can reach each other by name.
+The pipeline performs the following steps:
+
+1. **Pull Repo** – checkout the latest code.
+2. **Build Images** – build Docker images for each service and tag them as `${DOCKER_REGISTRY}/SERVICE:latest` and with the Jenkins build number.
+3. **Push to DockerHub** – authenticate with Docker Hub and push the newly built images.
+4. **Deploy to Remote Server** – copy `docker-compose.yml` and `deploy-script.sh` to the target host and run the script over SSH. The script installs Docker if required, substitutes the registry and host values, pulls the images and starts the containers on a shared `ci-network`.
+
+After deployment the pipeline prunes local images.
 
 ## Services
 
@@ -32,5 +41,5 @@ The Jenkins UI running on the host at port `8080` can be reached via `http://loc
 
 ### Persistent Storage
 
-Containers store data in `/var/ci_data` on the host. For example the PostgreSQL data directory resides in `/var/ci_data/postgres/data` and Nginx logs are written to `/var/ci_data/nginx/logs`. Volume mappings can be found in each service's `deploy.json` file.
+Containers store data in `/var/ci_data` on the host. For example the PostgreSQL data directory resides in `/var/ci_data/postgres/data` and Nginx logs are written to `/var/ci_data/nginx/logs`. All volume mappings are specified in `docker-compose.yml`.
 

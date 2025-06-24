@@ -1,7 +1,7 @@
 # Nginx Reverse Proxy
 
 This container runs a lightweight Nginx instance that forwards requests to the other services.
-It is built as `custom-nginx:latest` and exposes port **80** on the host.
+Jenkins builds the image from this directory and tags it as `${DOCKER_REGISTRY}/nginx:latest`. It exposes port **80** on the host.
 
 ## Routing
 
@@ -10,6 +10,6 @@ It is built as `custom-nginx:latest` and exposes port **80** on the host.
 - Requests to `/jenkins/` are proxied to the host Jenkins instance on port `8080`.
 - Unknown paths return a custom `404.html` page.
 
-Access and error logs are written to `/var/ci_data/nginx/logs` on the host as defined in `deploy.json`.
+Access and error logs are written to `/var/ci_data/nginx/logs` on the host as defined in `docker-compose.yml`.
 This container has no dependencies, but other services rely on it for routing.
 

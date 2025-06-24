@@ -1,12 +1,12 @@
 # MCP Server
 
-`mcp_server` exposes a FastAPI service that follows the [OpenAI MCP](https://platform.openai.com/docs/mcp) guidelines.  It is built locally as `enhanced-mcp-server:latest` and runs on port **8000** (exposed on the host as `8090`). The tool definition served by `/tools/schema` is derived from the `openapi.json` file at container start.
+`mcp_server` exposes a FastAPI service that follows the [OpenAI MCP](https://platform.openai.com/docs/mcp) guidelines.  Jenkins builds the image from this directory and tags it as `${DOCKER_REGISTRY}/mcp_server:latest`. The server runs on port **8000** (exposed on the host as `8090`). The tool definition served by `/tools/schema` is derived from the `openapi.json` file at container start.
 
 The container exposes the base URL used in its OpenAPI schema via the
-`BASE_URL` environment variable (default: `http://31.97.45.128:8090`).  This
-allows the service to operate correctly regardless of the host's IP address.
-It has no other required environment variables or persistent volumes, but it
-depends on the `nginx` container for routing.
+`BASE_URL` environment variable (default: `http://\${REMOTE_HOST}:8090` before
+substitution). Additional environment variables `SERVER_NAME` and `VERSION` are
+defined in `docker-compose.yml`. The service writes logs to
+`/var/ci_data/mcp_server/logs` and depends on the `nginx` container for routing.
 
 ## Endpoints
 

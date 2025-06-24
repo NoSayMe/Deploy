@@ -2,7 +2,7 @@
 
 The repository uses the official `postgres:15` image to provide a database for the handler service. The container exposes port **5432** and stores its data under `/var/ci_data/postgres/data` on the host.
 
-Environment variables defined in `deploy.json`:
+Environment variables defined in `docker-compose.yml`:
 
 - `POSTGRES_PASSWORD` – password for the default `postgres` user (set to `postgres`).
 - `POSTGRES_DB` – database created on startup (set to `handler_db`).

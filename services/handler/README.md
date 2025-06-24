@@ -4,9 +4,9 @@ The handler container runs a small FastAPI application that exposes a few demons
 
 ## Configuration
 
-The service is built from the included Dockerfile and published as `python-test-image:latest`. It listens on port **8000** (published on the host as `8082`).
+The service is built from the included Dockerfile and published by Jenkins as `${DOCKER_REGISTRY}/handler:latest`. It listens on port **8000** (published on the host as `8082`).
 
-Environment variables from `deploy.json`:
+Environment variables from `docker-compose.yml`:
 
 - `GLOBAL_MESSAGE` – example message returned by the `/tools/echo` endpoint.
 - `DATABASE_URL` – SQLAlchemy URL used to connect to PostgreSQL. By default `postgresql+asyncpg://postgres:postgres@postgres:5432/handler_db`.
