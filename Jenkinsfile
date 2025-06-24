@@ -70,9 +70,9 @@ pipeline {
                     
                     // 🔐 Use SSH credentials securely
                     withCredentials([
-                        sshUserPrivateKey(credentialsId: 'ssh-remote-server-1-Azure', keyFileVariable: 'SSH_KEY'),
+                        sshUserPrivateKey(credentialsId: 'ssh-remote-server-hostinger-deploy', keyFileVariable: 'SSH_KEY'),
                         string(credentialsId: 'remote-user', variable: 'REMOTE_USER'),
-                        string(credentialsId: 'remote-host-azure-1', variable: 'REMOTE_HOST'),
+                        string(credentialsId: 'remote-hostinger-deploy-ip', variable: 'REMOTE_HOST'),
                         string(credentialsId: 'docker-registry', variable: 'DOCKER_REGISTRY')
                     ]) {
                         // Create directory and copy files to remote server
