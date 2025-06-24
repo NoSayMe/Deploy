@@ -27,8 +27,8 @@ pipeline {
                                 echo "Building ${service}..."
                                 sh """
                                     cd services/${service}
-                                    docker build -t \${DOCKER_REGISTRY}/${service}:latest .
-                                    docker build -t \${DOCKER_REGISTRY}/${service}:${BUILD_NUMBER} .
+                                    docker build -t "\${DOCKER_REGISTRY}/${service}:latest" .
+                                    docker build -t "\${DOCKER_REGISTRY}/${service}:${BUILD_NUMBER}" .
                                 """
                             }
                         }
@@ -53,8 +53,8 @@ pipeline {
                             if (fileExists("services/${service}/Dockerfile")) {
                                 echo "Pushing ${service}..."
                                 sh """
-                                    docker push \${DOCKER_REGISTRY}/${service}:latest
-                                    docker push \${DOCKER_REGISTRY}/${service}:${BUILD_NUMBER}
+                                    docker push "\${DOCKER_REGISTRY}/${service}:latest"
+                                    docker push "\${DOCKER_REGISTRY}/${service}:${BUILD_NUMBER}"
                                 """
                             }
                         }
