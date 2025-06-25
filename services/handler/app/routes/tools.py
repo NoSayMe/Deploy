@@ -46,12 +46,14 @@ async def tap_game() -> str:
             <h1>Tap Game</h1>
             <p>Tap the button as many times as you can in 10 seconds!</p>
             <button id="tap" disabled>Tap!</button>
+            <button id="refresh" style="display:none;">Play Again</button>
             <div id="score">Score: 0</div>
             <div id="timer"></div>
             <script>
                 let score = 0;
                 let time = 10;
                 const btn = document.getElementById('tap');
+                const refreshBtn = document.getElementById('refresh');
                 const scoreEl = document.getElementById('score');
                 const timerEl = document.getElementById('timer');
 
@@ -61,6 +63,7 @@ async def tap_game() -> str:
                     scoreEl.textContent = 'Score: 0';
                     timerEl.textContent = 'Time: ' + time;
                     btn.disabled = false;
+                    refreshBtn.style.display = 'none';
                     const interval = setInterval(() => {
                         time--;
                         timerEl.textContent = 'Time: ' + time;
@@ -68,6 +71,7 @@ async def tap_game() -> str:
                             clearInterval(interval);
                             btn.disabled = true;
                             timerEl.textContent = "Time's up!";
+                            refreshBtn.style.display = 'inline-block';
                         }
                     }, 1000);
                 }
@@ -76,6 +80,8 @@ async def tap_game() -> str:
                     score++;
                     scoreEl.textContent = 'Score: ' + score;
                 });
+
+                refreshBtn.addEventListener('click', startGame);
 
                 window.onload = startGame;
             </script>
