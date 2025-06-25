@@ -62,7 +62,7 @@ async def tap_game() -> str:
                 const timerEl = document.getElementById('timer');
 
                 async function fetchHighscore() {
-                    const res = await fetch('/tools/game/highscore');
+                    const res = await fetch('highscore');
                     if (res.ok) {
                         const data = await res.json();
                         highEl.textContent = 'High Score: ' + data.highscore;
@@ -87,7 +87,7 @@ async def tap_game() -> str:
                             refreshBtn.style.display = 'inline-block';
                             startBtn.style.display = 'inline-block';
                             try {
-                                const res = await fetch('/tools/game/highscore', {
+                                const res = await fetch('highscore', {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify({ score })
