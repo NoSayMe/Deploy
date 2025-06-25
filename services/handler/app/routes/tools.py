@@ -74,7 +74,7 @@ async def tap_game() -> str:
                     timerEl.textContent = 'Time: ' + time;
                     btn.disabled = false;
                     refreshBtn.style.display = 'none';
-                    const interval = setInterval(() => {
+                    const interval = setInterval(async () => {
                         time--;
                         timerEl.textContent = 'Time: ' + time;
                         if (time === 0) {
