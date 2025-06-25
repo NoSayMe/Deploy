@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.schemas.tool_request import ToolRequest
 from app.tools.echo import echo_message
-from app.db import SessionLocal, Message
+from app.db import SessionLocal, Message, HighScore
 
 router = APIRouter()
 
@@ -48,6 +48,7 @@ async def tap_game() -> str:
             <button id="tap" disabled>Tap!</button>
             <button id="refresh" style="display:none;">Play Again</button>
             <div id="score">Score: 0</div>
+            <div id="highscore">High Score: 0</div>
             <div id="timer"></div>
             <script>
                 let score = 0;
@@ -55,7 +56,16 @@ async def tap_game() -> str:
                 const btn = document.getElementById('tap');
                 const refreshBtn = document.getElementById('refresh');
                 const scoreEl = document.getElementById('score');
+                const highEl = document.getElementById('highscore');
                 const timerEl = document.getElementById('timer');
+
+                async function fetchHighscore() {
+                    const res = await fetch('/tools/game/highscore');
+                    if (res.ok) {
+                        const data = await res.json();
+                        highEl.textContent = 'High Score: ' + data.highscore;
+                    }
+                }
 
                 function startGame() {
                     score = 0;
@@ -72,6 +82,22 @@ async def tap_game() -> str:
                             btn.disabled = true;
                             timerEl.textContent = "Time's up!";
                             refreshBtn.style.display = 'inline-block';
+                            try {
+                                const res = await fetch('/tools/game/highscore', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ score })
+                                });
+                                if (res.ok) {
+                                    const data = await res.json();
+                                    highEl.textContent = 'High Score: ' + data.highscore;
+                                    if (data.new_record) {
+                                        alert('New high score!');
+                                    }
+                                }
+                            } catch (e) {
+                                console.error(e);
+                            }
                         }
                     }, 1000);
                 }
@@ -83,11 +109,31 @@ async def tap_game() -> str:
 
                 refreshBtn.addEventListener('click', startGame);
 
-                window.onload = startGame;
+                window.onload = () => { fetchHighscore(); startGame(); };
             </script>
         </body>
     </html>
     """
+
+
+@router.get("/game/highscore")
+async def get_highscore(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(HighScore))
+    hs = result.scalar_one()
+    return {"highscore": hs.score}
+
+
+@router.post("/game/highscore")
+async def post_highscore(data: dict, db: AsyncSession = Depends(get_db)):
+    score = int(data.get("score", 0))
+    result = await db.execute(select(HighScore))
+    hs = result.scalar_one()
+    new_record = False
+    if score > hs.score:
+        hs.score = score
+        new_record = True
+        await db.commit()
+    return {"highscore": hs.score, "new_record": new_record}
 
 @router.post("/messages")
 async def create_message(req: ToolRequest, db: AsyncSession = Depends(get_db)):

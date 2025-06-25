@@ -22,6 +22,8 @@ This service depends on both the `nginx` and `postgres` containers, which must b
 - `POST /tools/messages` – store a message in the database and return its ID.
 - `GET /tools/messages/{id}` – retrieve a stored message by ID.
 - `GET /tools/game` – a small tap game for quick mobile testing.
+- `GET /tools/game/highscore` – return the current high score.
+- `POST /tools/game/highscore` – submit a score and update the record if higher.
 
 The application creates its database tables automatically on startup, retrying for a short period if the database is not yet ready.
 
