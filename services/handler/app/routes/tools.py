@@ -45,6 +45,7 @@ async def tap_game() -> str:
         <body>
             <h1>Tap Game</h1>
             <p>Tap the button as many times as you can in 10 seconds!</p>
+            <button id="start">Start</button>
             <button id="tap" disabled>Tap!</button>
             <button id="refresh" style="display:none;">Play Again</button>
             <div id="score">Score: 0</div>
@@ -54,6 +55,7 @@ async def tap_game() -> str:
                 let score = 0;
                 let time = 10;
                 const btn = document.getElementById('tap');
+                const startBtn = document.getElementById('start');
                 const refreshBtn = document.getElementById('refresh');
                 const scoreEl = document.getElementById('score');
                 const highEl = document.getElementById('highscore');
@@ -73,6 +75,7 @@ async def tap_game() -> str:
                     scoreEl.textContent = 'Score: 0';
                     timerEl.textContent = 'Time: ' + time;
                     btn.disabled = false;
+                    startBtn.style.display = 'none';
                     refreshBtn.style.display = 'none';
                     const interval = setInterval(async () => {
                         time--;
@@ -82,6 +85,7 @@ async def tap_game() -> str:
                             btn.disabled = true;
                             timerEl.textContent = "Time's up!";
                             refreshBtn.style.display = 'inline-block';
+                            startBtn.style.display = 'inline-block';
                             try {
                                 const res = await fetch('/tools/game/highscore', {
                                     method: 'POST',
@@ -108,8 +112,9 @@ async def tap_game() -> str:
                 });
 
                 refreshBtn.addEventListener('click', startGame);
+                startBtn.addEventListener('click', startGame);
 
-                window.onload = () => { fetchHighscore(); startGame(); };
+                window.onload = () => { fetchHighscore(); };
             </script>
         </body>
     </html>
