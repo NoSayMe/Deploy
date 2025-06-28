@@ -8,6 +8,7 @@ services:
       - "80:80"
     volumes:
       - /var/ci_data/nginx/logs:/var/log/nginx
+      - /var/ci_data/uploads:/usr/share/nginx/html/uploads
     networks:
       - ci-network
     restart: unless-stopped
@@ -36,6 +37,9 @@ services:
     environment:
       GLOBAL_MESSAGE: "Hello from Jenkins!!"
       DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres:5432/handler_db"
+      HOMEPAGE_PATH: "/uploads/homepage.jpg"
+    volumes:
+      - /var/ci_data/uploads:/uploads
     networks:
       - ci-network
     restart: unless-stopped

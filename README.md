@@ -39,5 +39,5 @@ The table below lists the available services. Follow the links for detailed info
 
 ### Persistent Storage
 
-Containers store data in `/var/ci_data` on the host. For example the PostgreSQL data directory resides in `/var/ci_data/postgres/data` and Nginx logs are written to `/var/ci_data/nginx/logs`. All volume mappings are specified in `docker-compose.yml`.
+Containers store data in `/var/ci_data` on the host. For example the PostgreSQL data directory resides in `/var/ci_data/postgres/data`, uploaded homepage images are stored in `/var/ci_data/uploads`, and Nginx logs are written to `/var/ci_data/nginx/logs`. All volume mappings are specified in `docker-compose.yml`.
 
