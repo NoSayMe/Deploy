@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+import os
 from fastapi.responses import HTMLResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -155,3 +156,16 @@ async def read_message(msg_id: int, db: AsyncSession = Depends(get_db)):
     if not msg:
         raise HTTPException(status_code=404, detail="Message not found")
     return {"id": msg.id, "message": msg.content}
+
+
+HOMEPAGE_PATH = os.getenv("HOMEPAGE_PATH", "/uploads/homepage.jpg")
+
+
+@router.post("/homepage")
+async def upload_homepage(file: UploadFile = File(...)):
+    """Upload an image that will be served at the site root."""
+    data = await file.read()
+    os.makedirs(os.path.dirname(HOMEPAGE_PATH), exist_ok=True)
+    with open(HOMEPAGE_PATH, "wb") as f:
+        f.write(data)
+    return {"status": "uploaded"}
